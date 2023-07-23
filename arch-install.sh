@@ -14,10 +14,10 @@ format_disk(){
   clear
   echo -e "[!] - Formatando os discos\n"
   sleep 2
-  mkfs.vfat -F32 /dev/sda1
-  mkswap /dev/sda2
-  swapon /dev/sda2
-  mkfs.btrfs -f /dev/sda3
+  mkfs.vfat -F32 /dev/nvme0n1p1
+  mkswap /dev/nvme0n1p2
+  swapon /dev/nvme0n1p2
+  mkfs.btrfs -f /dev/nvme0n1p3
 }
 
 # Criação de subvolumes
@@ -25,7 +25,7 @@ subvolumes(){
   clear
   echo -e "[!] - Criando subvolumes em btrfs\n"
   sleep 2
-  mount /dev/sda3 /mnt
+  mount /dev/nvme0n1p3 /mnt
   btrfs su cr /mnt/@
   btrfs su cr /mnt/@home
   #btrfs su cr /mnt/@log
@@ -39,17 +39,17 @@ mount_partitions(){
   clear
   echo -e "[!] - Montando as partições\n"
   sleep 2
-  mount -o defaults,noatime,compress-force=zstd:3,autodefrag,subvol=@ /dev/sda3 /mnt
+  mount -o defaults,noatime,compress-force=zstd:3,autodefrag,subvol=@ /dev/nvme0n1p3 /mnt
   mkdir -p /mnt/boot/efi
   mkdir /mnt/home
   mkdir /mnt/.snapshots
   #mkdir -p /mnt/var/log
   #mkdir -p /mnt/var/cache/pacman/pkg
-  mount -o defaults,noatime,compress-force=zstd:3,autodefrag,subvol=@home /dev/sda3 /mnt/home
-  #mount -o defaults,noatime,compress-force=zstd:3,autodefrag,subvol=@log /dev/sda3 /mnt/var/log
-  #mount -o defaults,noatime,compress-force=zstd:3,autodefrag,subvol=@pkg /dev/sda3 /mnt/var/cache/pacman/pkg
-  mount -o defaults,noatime,compress-force=zstd:3,autodefrag,subvol=@snapshots /dev/sda3 /mnt/.snapshots
-  mount /dev/sda1 /mnt/boot/efi
+  mount -o defaults,noatime,compress-force=zstd:3,autodefrag,subvol=@home /dev/nvme0n1p3 /mnt/home
+  #mount -o defaults,noatime,compress-force=zstd:3,autodefrag,subvol=@log /dev/nvme0n1p3 /mnt/var/log
+  #mount -o defaults,noatime,compress-force=zstd:3,autodefrag,subvol=@pkg /dev/nvme0n1p3 /mnt/var/cache/pacman/pkg
+  mount -o defaults,noatime,compress-force=zstd:3,autodefrag,subvol=@snapshots /dev/nvme0n1p3 /mnt/.snapshots
+  mount /dev/nvme0n1p1 /mnt/boot/efi
 }
 
 # Instalando pacotes base do Arch Linux
@@ -68,7 +68,7 @@ fstab_gen(){
   echo -e "[!] - Gerando o Fstab\n"
   sleep 2
   genfstab /mnt >> /mnt/etc/fstab
-  #printf "\n/dev/sda2 none swap defaults 0 0" >> /mnt/etc/fstab
+  #printf "\n/dev/nvme0n1p2 none swap defaults 0 0" >> /mnt/etc/fstab
 
 }
 
